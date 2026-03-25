@@ -55,9 +55,7 @@ export default function ProductCard({
   };
 
   const handleSaveQuantity = async () => {
-    if (!Number.isFinite(newQuantity) || newQuantity < 1) {
-      return;
-    }
+    if (!Number.isFinite(newQuantity) || newQuantity < 1) return;
 
     try {
       setSavingQuantity(true);
@@ -69,93 +67,94 @@ export default function ProductCard({
   };
 
   return (
-    <div
-      className={`${statusColor} rounded-xl border p-5 transition-all hover:shadow-md`}
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-1 items-start gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white">
-                <Package className="h-5 w-5 text-slate-600" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h4 className="mb-1 truncate text-lg font-semibold text-slate-900">
-                  {product.nome}
-                </h4>
-
-                <Badge className={`${badgeColor} border`} variant="outline">
-                  {statusLabel}
-                </Badge>
-              </div>
-            </div>
-
-            {isGerente && (
-              <div className="flex gap-2">
-                {!editingQuantity && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleStartEdit}
-                    className="gap-2"
-                  >
-                    <Pencil className="h-4 w-4" />
-                    Editar qtd
-                  </Button>
-                )}
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(product.id)}
-                  className="gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Excluir
-                </Button>
-              </div>
-            )}
+    <div className={`${statusColor} rounded-xl border p-4 sm:p-5 transition-all hover:shadow-md`}>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white">
+            <Package className="h-5 w-5 text-slate-600" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-            <div className="flex items-center gap-2 text-slate-700">
-              <Tag className="h-4 w-4 text-slate-500" />
-              <span className="font-medium">{product.categoria}</span>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-base font-semibold leading-tight text-slate-900 sm:text-lg break-words">
+              {product.nome}
+            </h4>
+
+            <div className="mt-2">
+              <Badge className={`${badgeColor} border`} variant="outline">
+                {statusLabel}
+              </Badge>
             </div>
+          </div>
+        </div>
 
-            <div className="flex items-center gap-2 text-slate-700">
-              <Hash className="h-4 w-4 text-slate-500" />
-              <span className="font-mono">{product.codigo_barras || '-'}</span>
-            </div>
+        {isGerente && (
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {!editingQuantity && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleStartEdit}
+                className="w-full justify-center gap-2 sm:w-auto"
+              >
+                <Pencil className="h-4 w-4" />
+                Editar qtd
+              </Button>
+            )}
 
-            <div className="flex items-center gap-2 text-slate-700">
-              <Calendar className="h-4 w-4 text-slate-500" />
-              <span>{formatDate(product.validade)}</span>
-            </div>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(product.id)}
+              className="w-full justify-center gap-2 sm:w-auto"
+            >
+              <Trash2 className="h-4 w-4" />
+              Excluir
+            </Button>
+          </div>
+        )}
 
-            <div className="flex items-center gap-2 text-slate-700">
-              <Package className="h-4 w-4 text-slate-500" />
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex items-center gap-2 text-slate-700">
+            <Tag className="h-4 w-4 shrink-0 text-slate-500" />
+            <span className="font-medium break-words">{product.categoria}</span>
+          </div>
 
-              {editingQuantity ? (
+          <div className="flex items-center gap-2 text-slate-700">
+            <Hash className="h-4 w-4 shrink-0 text-slate-500" />
+            <span className="font-mono break-all">
+              {product.codigo_barras || '-'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-700">
+            <Calendar className="h-4 w-4 shrink-0 text-slate-500" />
+            <span>{formatDate(product.validade)}</span>
+          </div>
+
+          <div className="flex items-start gap-2 text-slate-700">
+            <Package className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+
+            {editingQuantity ? (
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                <input
+                  type="number"
+                  min="1"
+                  value={newQuantity}
+                  onChange={(e) => setNewQuantity(Number(e.target.value))}
+                  className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm sm:w-24"
+                  disabled={savingQuantity}
+                />
+
                 <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="1"
-                    value={newQuantity}
-                    onChange={(e) => setNewQuantity(Number(e.target.value))}
-                    className="w-20 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
-                    disabled={savingQuantity}
-                  />
-
                   <button
                     type="button"
                     onClick={handleSaveQuantity}
                     disabled={savingQuantity}
-                    className="text-green-600 hover:text-green-700 disabled:opacity-50"
+                    className="rounded p-1 text-green-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-50"
                     title="Salvar"
+                    aria-label="Salvar quantidade"
                   >
                     <Check className="h-4 w-4" />
                   </button>
@@ -164,16 +163,17 @@ export default function ProductCard({
                     type="button"
                     onClick={handleCancelEdit}
                     disabled={savingQuantity}
-                    className="text-red-600 hover:text-red-700 disabled:opacity-50"
+                    className="rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
                     title="Cancelar"
+                    aria-label="Cancelar edição"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-              ) : (
-                <span>{product.quantidade} unidades</span>
-              )}
-            </div>
+              </div>
+            ) : (
+              <span>{product.quantidade} unidades</span>
+            )}
           </div>
         </div>
       </div>
