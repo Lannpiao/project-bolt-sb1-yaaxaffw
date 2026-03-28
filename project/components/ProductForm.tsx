@@ -21,6 +21,7 @@ const CATEGORIES = [
   'Hortifruti',
   'Congelados',
   'Mercearia',
+  'Alimentos',
 ];
 
 export default function ProductForm() {
@@ -45,8 +46,7 @@ export default function ProductForm() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const selectedDate = new Date(expiryDate);
-    selectedDate.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(expiryDate + 'T12:00:00');
 
     if (selectedDate < today) {
       toast.error('A data de validade não pode ser no passado');
