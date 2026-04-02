@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
+import BarcodeScanner from '@/components/BarcodeScanner';
 
 const CATEGORIES = [
   'Bebidas',
@@ -32,8 +33,16 @@ export default function ProductForm() {
   const [quantity, setQuantity] = useState('1');
   const [loading, setLoading] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
   const { user } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const checkMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    setIsMobile(checkMobile);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +143,30 @@ export default function ProductForm() {
           disabled={loading}
           className="h-12 text-base"
         />
+
+        {isMobile && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowScanner((prev) => !prev)}
+            disabled={loading}
+            className="mt-3 w-full h-12 text-base"
+          >
+            {showScanner ? 'Fechar câmera' : 'Escanear código'}
+          </Button>
+        )}
+
+        {isMobile && showScanner && (
+          <div className="mt-3 overflow-hidden rounded-lg border">
+            <BarcodeScanner
+              onResult={(code) => {
+                setBarcode(code);
+                setShowScanner(false);
+                toast.success(`Código lido: ${code}`);
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

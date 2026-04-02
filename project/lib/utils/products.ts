@@ -1,10 +1,15 @@
 export type ExpiryStatus = 'expired' | 'expiring-today' | 'expiring-soon' | 'normal';
 
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export function getExpiryStatus(expiryDate: string): ExpiryStatus {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const expiry = new Date(expiryDate);
+  const expiry = parseLocalDate(expiryDate);
   expiry.setHours(0, 0, 0, 0);
 
   const diffTime = expiry.getTime() - today.getTime();
@@ -56,6 +61,6 @@ export function getExpiryStatusLabel(status: ExpiryStatus): string {
 }
 
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR');
+  const [year, month, day] = dateString.split('-');
+  return `${day}/${month}/${year}`;
 }
