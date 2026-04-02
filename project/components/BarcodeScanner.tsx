@@ -1,6 +1,5 @@
 'use client';
 
-import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -8,32 +7,45 @@ interface Props {
 }
 
 export default function BarcodeScanner({ onResult }: Props) {
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let mounted = true;
-    const elementId = 'barcode-scanner';
+    let localScanner: any = null;
 
     const startScanner = async () => {
       try {
+        const elementId = 'barcode-scanner';
         const element = document.getElementById(elementId);
-        if (!element) return;
+
+        if (!element) {
+          setErrorMsg('Área do scanner não encontrada.');
+          return;
+        }
+
+        const { Html5Qrcode } = await import('html5-qrcode');
+
+        if (!mounted) return;
 
         const scanner = new Html5Qrcode(elementId);
+        localScanner = scanner;
         scannerRef.current = scanner;
 
+        setReady(true);
+
         await scanner.start(
-          { facingMode: 'environment' },
+          { facingMode: { ideal: 'environment' } },
           {
             fps: 10,
             qrbox: { width: 250, height: 120 },
             aspectRatio: 1.7778,
             disableFlip: true,
           },
-          async (decodedText) => {
+          async (decodedText: string) => {
             if (!mounted) return;
 
             onResult(decodedText);
@@ -46,7 +58,7 @@ export default function BarcodeScanner({ onResult }: Props) {
             }
           },
           () => {
-            // Ignora erros contínuos enquanto tenta encontrar o código
+            // ignora tentativas sem leitura
           }
         );
       } catch (error) {
@@ -57,34 +69,39 @@ export default function BarcodeScanner({ onResult }: Props) {
       }
     };
 
-    startScanner();
+    const timer = setTimeout(() => {
+      startScanner();
+    }, 200);
 
     return () => {
       mounted = false;
+      clearTimeout(timer);
 
-      const scanner = scannerRef.current;
+      const scanner = localScanner || scannerRef.current;
       if (scanner) {
         scanner
           .stop()
           .then(() => scanner.clear())
-          .catch(() => {
-            // evita erro se já estiver parado
-          });
+          .catch(() => {});
       }
     };
   }, [onResult]);
 
   return (
     <div className="space-y-3">
-      <div className="overflow-hidden rounded-lg border bg-black">
-        <div id="barcode-scanner" className="w-full" />
+      <div className="overflow-hidden rounded-lg border bg-black min-h-[260px]">
+        <div id="barcode-scanner" className="w-full min-h-[260px]" />
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Centralize o código e afaste um pouco o celular.
-      </p>
+      {!ready && !errorMsg && (
+        <p className="text-sm text-muted-foreground">
+          Iniciando câmera...
+        </p>
+      )}
 
-      {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+      {errorMsg && (
+        <p className="text-sm text-red-600">{errorMsg}</p>
+      )}
     </div>
   );
 }

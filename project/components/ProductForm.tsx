@@ -36,7 +36,6 @@ export default function ProductForm() {
   const [expiryDate, setExpiryDate] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [loading, setLoading] = useState(false);
-
   const [isMobile, setIsMobile] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
@@ -45,8 +44,7 @@ export default function ProductForm() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const checkMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    setIsMobile(checkMobile);
+    setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
