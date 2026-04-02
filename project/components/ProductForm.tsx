@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
@@ -9,7 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
-import BarcodeScanner from '@/components/BarcodeScanner';
+
+const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
+  ssr: false,
+});
 
 const CATEGORIES = [
   'Bebidas',
@@ -40,6 +44,7 @@ export default function ProductForm() {
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const checkMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     setIsMobile(checkMobile);
   }, []);
@@ -134,6 +139,7 @@ export default function ProductForm() {
         <Label htmlFor="barcode" className="text-sm font-medium">
           Código de Barras *
         </Label>
+
         <Input
           id="barcode"
           type="text"
@@ -150,14 +156,14 @@ export default function ProductForm() {
             variant="outline"
             onClick={() => setShowScanner((prev) => !prev)}
             disabled={loading}
-            className="mt-3 w-full h-12 text-base"
+            className="mt-3 h-12 w-full text-base"
           >
             {showScanner ? 'Fechar câmera' : 'Escanear código'}
           </Button>
         )}
 
         {isMobile && showScanner && (
-          <div className="mt-3 overflow-hidden rounded-lg border">
+          <div className="mt-3">
             <BarcodeScanner
               onResult={(code) => {
                 setBarcode(code);
@@ -207,7 +213,7 @@ export default function ProductForm() {
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
-          className="flex-1 h-12 text-base"
+          className="h-12 flex-1 text-base"
         >
           Cancelar
         </Button>
@@ -215,7 +221,7 @@ export default function ProductForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 h-12 text-base font-semibold"
+          className="h-12 flex-1 text-base font-semibold"
         >
           {loading ? (
             <>
