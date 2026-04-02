@@ -18,13 +18,23 @@ export default function BarcodeScanner({ onResult }: Props) {
     if (!videoRef.current) return;
 
     codeReader
-      .decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
-        if (result && !stopped) {
-          stopped = true;
-          onResult(result.getText());
-          controls?.stop();
+      .decodeFromConstraints(
+        {
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        },
+        videoRef.current,
+        (result, error) => {
+          if (result && !stopped) {
+            stopped = true;
+            onResult(result.getText());
+            controls?.stop();
+          }
         }
-      })
+      )
       .then((ctrl) => {
         controls = ctrl;
       })
@@ -39,11 +49,13 @@ export default function BarcodeScanner({ onResult }: Props) {
   }, [onResult]);
 
   return (
-    <video
-      ref={videoRef}
-      className="w-full rounded-lg"
-      muted
-      playsInline
-    />
+    <div className="overflow-hidden rounded-lg border">
+      <video
+        ref={videoRef}
+        className="w-full h-64 object-cover"
+        muted
+        playsInline
+      />
+    </div>
   );
 }
