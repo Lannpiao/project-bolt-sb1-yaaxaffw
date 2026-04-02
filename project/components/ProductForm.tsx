@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
@@ -10,10 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
-
-const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
-  ssr: false,
-});
 
 const CATEGORIES = [
   'Bebidas',
@@ -36,16 +31,9 @@ export default function ProductForm() {
   const [expiryDate, setExpiryDate] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [loading, setLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
 
   const { user } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +125,6 @@ export default function ProductForm() {
         <Label htmlFor="barcode" className="text-sm font-medium">
           Código de Barras *
         </Label>
-
         <Input
           id="barcode"
           type="text"
@@ -147,30 +134,6 @@ export default function ProductForm() {
           disabled={loading}
           className="h-12 text-base"
         />
-
-        {isMobile && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowScanner((prev) => !prev)}
-            disabled={loading}
-            className="mt-3 h-12 w-full text-base"
-          >
-            {showScanner ? 'Fechar câmera' : 'Escanear código'}
-          </Button>
-        )}
-
-        {isMobile && showScanner && (
-          <div className="mt-3">
-            <BarcodeScanner
-              onResult={(code) => {
-                setBarcode(code);
-                setShowScanner(false);
-                toast.success(`Código lido: ${code}`);
-              }}
-            />
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -211,7 +174,7 @@ export default function ProductForm() {
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
-          className="h-12 flex-1 text-base"
+          className="flex-1 h-12 text-base"
         >
           Cancelar
         </Button>
@@ -219,7 +182,7 @@ export default function ProductForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="h-12 flex-1 text-base font-semibold"
+          className="flex-1 h-12 text-base font-semibold"
         >
           {loading ? (
             <>
