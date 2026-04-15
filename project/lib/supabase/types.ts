@@ -28,6 +28,7 @@ export interface Database {
           codigo_barras: string | null;
           validade: string;
           quantidade: number;
+          em_promocao: boolean;
           user_id: string;
           created_at: string;
         };
@@ -38,6 +39,7 @@ export interface Database {
           codigo_barras?: string | null;
           validade: string;
           quantidade: number;
+          em_promocao?: boolean;
           user_id: string;
           created_at?: string;
         };
@@ -48,6 +50,7 @@ export interface Database {
           codigo_barras?: string | null;
           validade?: string;
           quantidade?: number;
+          em_promocao?: boolean;
           user_id?: string;
           created_at?: string;
         };

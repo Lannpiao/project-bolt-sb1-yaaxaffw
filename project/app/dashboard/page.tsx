@@ -1,5 +1,5 @@
 'use client';
-import { Product, Database } from '@/lib/supabase/types';
+import { Product } from '@/lib/supabase/types';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
@@ -73,7 +73,6 @@ export default function DashboardPage() {
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm('Deseja realmente excluir este produto?');
-
     if (!confirmed) return;
 
     try {
@@ -81,7 +80,7 @@ export default function DashboardPage() {
 
       if (error) throw error;
 
-      setProducts((prev) => prev.filter((product) => product.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success('Produto excluído com sucesso');
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
@@ -104,8 +103,8 @@ export default function DashboardPage() {
       if (error) throw error;
 
       setProducts((prev) =>
-        prev.map((product) =>
-          product.id === id ? { ...product, quantidade } : product
+        prev.map((p) =>
+          p.id === id ? { ...p, quantidade } : p
         )
       );
 
@@ -113,6 +112,30 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Erro ao atualizar quantidade:', error);
       toast.error('Erro ao atualizar quantidade');
+    }
+  };
+
+  const handleTogglePromocao = async (id: string, emPromocao: boolean) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('produtos')
+        .update({ em_promocao: emPromocao })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, em_promocao: emPromocao }
+            : p
+        )
+      );
+
+      toast.success('Status de promoção atualizado');
+    } catch (error) {
+      console.error('Erro ao atualizar promoção:', error);
+      toast.error('Erro ao atualizar promoção');
     }
   };
 
@@ -151,16 +174,14 @@ export default function DashboardPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm font-medium">
-              Categoria
-            </Label>
+            <Label htmlFor="category">Categoria</Label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger id="category" className="h-12 text-base">
+              <SelectTrigger id="category">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="text-base">
+                  <SelectItem key={cat} value={cat}>
                     {cat}
                   </SelectItem>
                 ))}
@@ -169,18 +190,15 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="barcode" className="text-sm font-medium">
-              Buscar por Código de Barras
-            </Label>
+            <Label htmlFor="barcode">Buscar por Código</Label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <Input
                 id="barcode"
-                type="text"
                 placeholder="Digite o código..."
                 value={searchBarcode}
                 onChange={(e) => setSearchBarcode(e.target.value)}
-                className="h-12 pl-10 text-base"
+                className="pl-10"
               />
             </div>
           </div>
@@ -192,6 +210,7 @@ export default function DashboardPage() {
           profile={profile}
           onDelete={handleDelete}
           onUpdateQuantity={handleUpdateQuantity}
+          onTogglePromocao={handleTogglePromocao} // 👈 FALTAVA ISSO
         />
       </div>
     </div>

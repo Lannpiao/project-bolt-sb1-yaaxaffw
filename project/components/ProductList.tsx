@@ -10,6 +10,7 @@ interface ProductListProps {
   profile: Profile | null;
   onDelete: (id: string) => Promise<void>;
   onUpdateQuantity: (id: string, quantidade: number) => Promise<void>;
+  onTogglePromocao: (id: string, emPromocao: boolean) => Promise<void>;
 }
 
 export default function ProductList({
@@ -18,6 +19,7 @@ export default function ProductList({
   profile,
   onDelete,
   onUpdateQuantity,
+  onTogglePromocao,
 }: ProductListProps) {
   if (loading) {
     return (
@@ -59,6 +61,7 @@ export default function ProductList({
           isGerente={profile?.role === 'GERENTE'}
           onDelete={onDelete}
           onUpdateQuantity={onUpdateQuantity}
+          onTogglePromocao={onTogglePromocao}
         />
       ))}
     </div>

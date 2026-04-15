@@ -27,6 +27,7 @@ interface ProductCardProps {
   isGerente: boolean;
   onDelete: (id: string) => Promise<void>;
   onUpdateQuantity: (id: string, quantidade: number) => Promise<void>;
+  onTogglePromocao: (id: string, emPromocao: boolean) => Promise<void>;
 }
 
 export default function ProductCard({
@@ -34,6 +35,7 @@ export default function ProductCard({
   isGerente,
   onDelete,
   onUpdateQuantity,
+  onTogglePromocao,
 }: ProductCardProps) {
   const status = getExpiryStatus(product.validade);
   const statusColor = getExpiryStatusColor(status);
@@ -43,6 +45,7 @@ export default function ProductCard({
   const [editingQuantity, setEditingQuantity] = useState(false);
   const [newQuantity, setNewQuantity] = useState(product.quantidade);
   const [savingQuantity, setSavingQuantity] = useState(false);
+  const [savingPromotion, setSavingPromotion] = useState(false);
 
   const handleStartEdit = () => {
     setNewQuantity(product.quantidade);
@@ -66,6 +69,15 @@ export default function ProductCard({
     }
   };
 
+  const handleTogglePromocao = async (checked: boolean) => {
+    try {
+      setSavingPromotion(true);
+      await onTogglePromocao(product.id, checked);
+    } finally {
+      setSavingPromotion(false);
+    }
+  };
+
   return (
     <div className={`${statusColor} rounded-xl border p-4 sm:p-5 transition-all hover:shadow-md`}>
       <div className="flex flex-col gap-4">
@@ -79,10 +91,30 @@ export default function ProductCard({
               {product.nome}
             </h4>
 
-            <div className="mt-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge className={`${badgeColor} border`} variant="outline">
                 {statusLabel}
               </Badge>
+
+              {product.em_promocao && (
+                <Badge variant="outline" className="border-blue-300 text-blue-700">
+                  Em promoção
+                </Badge>
+              )}
+            </div>
+
+            {/* CHECKBOX */}
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={product.em_promocao || false}
+                onChange={(e) => handleTogglePromocao(e.target.checked)}
+                disabled={savingPromotion}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                Em promoção
+              </span>
             </div>
           </div>
         </div>
@@ -152,9 +184,7 @@ export default function ProductCard({
                     type="button"
                     onClick={handleSaveQuantity}
                     disabled={savingQuantity}
-                    className="rounded p-1 text-green-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-50"
-                    title="Salvar"
-                    aria-label="Salvar quantidade"
+                    className="rounded p-1 text-green-600 hover:bg-green-50"
                   >
                     <Check className="h-4 w-4" />
                   </button>
@@ -163,9 +193,7 @@ export default function ProductCard({
                     type="button"
                     onClick={handleCancelEdit}
                     disabled={savingQuantity}
-                    className="rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
-                    title="Cancelar"
-                    aria-label="Cancelar edição"
+                    className="rounded p-1 text-red-600 hover:bg-red-50"
                   >
                     <X className="h-4 w-4" />
                   </button>
