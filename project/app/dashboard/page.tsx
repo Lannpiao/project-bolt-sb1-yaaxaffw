@@ -103,9 +103,7 @@ export default function DashboardPage() {
       if (error) throw error;
 
       setProducts((prev) =>
-        prev.map((p) =>
-          p.id === id ? { ...p, quantidade } : p
-        )
+        prev.map((p) => (p.id === id ? { ...p, quantidade } : p))
       );
 
       toast.success('Quantidade atualizada com sucesso');
@@ -126,9 +124,7 @@ export default function DashboardPage() {
 
       setProducts((prev) =>
         prev.map((p) =>
-          p.id === id
-            ? { ...p, em_promocao: emPromocao }
-            : p
+          p.id === id ? { ...p, em_promocao: emPromocao } : p
         )
       );
 
@@ -136,6 +132,26 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Erro ao atualizar promoção:', error);
       toast.error('Erro ao atualizar promoção');
+    }
+  };
+
+  const handleToggleTroca = async (id: string, temTroca: boolean) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('produtos')
+        .update({ tem_troca: temTroca })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, tem_troca: temTroca } : p))
+      );
+
+      toast.success('Status de troca atualizado');
+    } catch (error) {
+      console.error('Erro ao atualizar troca:', error);
+      toast.error('Erro ao atualizar troca');
     }
   };
 
@@ -210,7 +226,8 @@ export default function DashboardPage() {
           profile={profile}
           onDelete={handleDelete}
           onUpdateQuantity={handleUpdateQuantity}
-          onTogglePromocao={handleTogglePromocao} // 👈 FALTAVA ISSO
+          onTogglePromocao={handleTogglePromocao}
+          onToggleTroca={handleToggleTroca}
         />
       </div>
     </div>

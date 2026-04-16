@@ -28,6 +28,7 @@ interface ProductCardProps {
   onDelete: (id: string) => Promise<void>;
   onUpdateQuantity: (id: string, quantidade: number) => Promise<void>;
   onTogglePromocao: (id: string, emPromocao: boolean) => Promise<void>;
+  onToggleTroca: (id: string, temTroca: boolean) => Promise<void>;
 }
 
 export default function ProductCard({
@@ -36,6 +37,7 @@ export default function ProductCard({
   onDelete,
   onUpdateQuantity,
   onTogglePromocao,
+  onToggleTroca,
 }: ProductCardProps) {
   const status = getExpiryStatus(product.validade);
   const statusColor = getExpiryStatusColor(status);
@@ -46,6 +48,7 @@ export default function ProductCard({
   const [newQuantity, setNewQuantity] = useState(product.quantidade);
   const [savingQuantity, setSavingQuantity] = useState(false);
   const [savingPromotion, setSavingPromotion] = useState(false);
+  const [savingTroca, setSavingTroca] = useState(false);
 
   const handleStartEdit = () => {
     setNewQuantity(product.quantidade);
@@ -78,8 +81,19 @@ export default function ProductCard({
     }
   };
 
+  const handleToggleTroca = async (checked: boolean) => {
+    try {
+      setSavingTroca(true);
+      await onToggleTroca(product.id, checked);
+    } finally {
+      setSavingTroca(false);
+    }
+  };
+
   return (
-    <div className={`${statusColor} rounded-xl border p-4 sm:p-5 transition-all hover:shadow-md`}>
+    <div
+      className={`${statusColor} rounded-xl border p-4 sm:p-5 transition-all hover:shadow-md`}
+    >
       <div className="flex flex-col gap-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white">
@@ -97,24 +111,58 @@ export default function ProductCard({
               </Badge>
 
               {product.em_promocao && (
-                <Badge variant="outline" className="border-blue-300 text-blue-700">
+                <Badge
+                  variant="outline"
+                  className="border-blue-300 text-blue-700"
+                >
                   Em promoção
+                </Badge>
+              )}
+
+              {product.tem_troca && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-300 text-amber-700"
+                >
+                  Tem troca
                 </Badge>
               )}
             </div>
 
-            {/* CHECKBOX */}
-            <div className="mt-3 flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={product.em_promocao || false}
-                onChange={(e) => handleTogglePromocao(e.target.checked)}
-                disabled={savingPromotion}
-                className="h-4 w-4 rounded border-slate-300"
-              />
-              <span className="text-sm font-medium text-slate-700">
-                Em promoção
-              </span>
+            <div className="mt-3 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  id={`promocao-${product.id}`}
+                  type="checkbox"
+                  checked={product.em_promocao || false}
+                  onChange={(e) => handleTogglePromocao(e.target.checked)}
+                  disabled={savingPromotion}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <label
+                  htmlFor={`promocao-${product.id}`}
+                  className="text-sm font-medium text-slate-700"
+                >
+                  Em promoção
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  id={`troca-${product.id}`}
+                  type="checkbox"
+                  checked={product.tem_troca || false}
+                  onChange={(e) => handleToggleTroca(e.target.checked)}
+                  disabled={savingTroca}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <label
+                  htmlFor={`troca-${product.id}`}
+                  className="text-sm font-medium text-slate-700"
+                >
+                  Tem troca
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -150,7 +198,9 @@ export default function ProductCard({
         <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex items-center gap-2 text-slate-700">
             <Tag className="h-4 w-4 shrink-0 text-slate-500" />
-            <span className="font-medium break-words">{product.categoria}</span>
+            <span className="font-medium break-words">
+              {product.categoria}
+            </span>
           </div>
 
           <div className="flex items-center gap-2 text-slate-700">
@@ -184,7 +234,9 @@ export default function ProductCard({
                     type="button"
                     onClick={handleSaveQuantity}
                     disabled={savingQuantity}
-                    className="rounded p-1 text-green-600 hover:bg-green-50"
+                    className="rounded p-1 text-green-600 hover:bg-green-50 hover:text-green-700 disabled:opacity-50"
+                    title="Salvar"
+                    aria-label="Salvar quantidade"
                   >
                     <Check className="h-4 w-4" />
                   </button>
@@ -193,7 +245,9 @@ export default function ProductCard({
                     type="button"
                     onClick={handleCancelEdit}
                     disabled={savingQuantity}
-                    className="rounded p-1 text-red-600 hover:bg-red-50"
+                    className="rounded p-1 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                    title="Cancelar"
+                    aria-label="Cancelar edição"
                   >
                     <X className="h-4 w-4" />
                   </button>

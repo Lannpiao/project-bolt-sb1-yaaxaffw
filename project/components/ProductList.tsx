@@ -11,6 +11,7 @@ interface ProductListProps {
   onDelete: (id: string) => Promise<void>;
   onUpdateQuantity: (id: string, quantidade: number) => Promise<void>;
   onTogglePromocao: (id: string, emPromocao: boolean) => Promise<void>;
+  onToggleTroca: (id: string, temTroca: boolean) => Promise<void>;
 }
 
 export default function ProductList({
@@ -20,6 +21,7 @@ export default function ProductList({
   onDelete,
   onUpdateQuantity,
   onTogglePromocao,
+  onToggleTroca,
 }: ProductListProps) {
   if (loading) {
     return (
@@ -62,6 +64,7 @@ export default function ProductList({
           onDelete={onDelete}
           onUpdateQuantity={onUpdateQuantity}
           onTogglePromocao={onTogglePromocao}
+          onToggleTroca={onToggleTroca}
         />
       ))}
     </div>

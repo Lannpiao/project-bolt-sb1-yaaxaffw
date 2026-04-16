@@ -29,6 +29,7 @@ export interface Database {
           validade: string;
           quantidade: number;
           em_promocao: boolean;
+          tem_troca: boolean;
           user_id: string;
           created_at: string;
         };
@@ -40,6 +41,7 @@ export interface Database {
           validade: string;
           quantidade: number;
           em_promocao?: boolean;
+          tem_troca?: boolean;
           user_id: string;
           created_at?: string;
         };
@@ -51,6 +53,7 @@ export interface Database {
           validade?: string;
           quantidade?: number;
           em_promocao?: boolean;
+          tem_troca?: boolean;
           user_id?: string;
           created_at?: string;
         };
