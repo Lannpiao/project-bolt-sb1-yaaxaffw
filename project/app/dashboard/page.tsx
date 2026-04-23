@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [searchBarcode, setSearchBarcode] = useState('');
   const { user, profile } = useAuth();
+  const [abaAtual, setAbaAtual] = useState<'produtos' | 'troca'>('produtos');
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -160,6 +161,12 @@ export default function DashboardPage() {
     fetchProducts();
   }, [user, selectedCategory, searchBarcode]);
 
+  const produtosFiltrados = products.filter((product) => {
+    if (abaAtual === 'produtos') return !product.tem_troca;
+    if (abaAtual === 'troca') return product.tem_troca;
+    return true;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -219,9 +226,25 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        <div className="flex gap-2 mb-4">
+          <Button
+            type="button"
+            variant={abaAtual === 'produtos' ? 'default' : 'outline'}
+            onClick={() => setAbaAtual('produtos')}
+          >
+            Produtos sem Troca
+          </Button>
 
+          <Button
+            type="button"
+            variant={abaAtual === 'troca' ? 'default' : 'outline'}
+            onClick={() => setAbaAtual('troca')}
+          >
+            Produtos com Troca
+          </Button>
+        </div>
         <ProductList
-          products={products}
+          products={produtosFiltrados}
           loading={loading}
           profile={profile}
           onDelete={handleDelete}
